@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园美食评价互动平台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:微软雅黑;background:#f5f7fa;transition:all 0.3s;}
+/* 精准调整宽窄：手机窄，平板宽 */
+.phone-mode{max-width:420px;margin:0 auto;}
+.pad-mode{max-width:900px;margin:0 auto;}
+.mode-switch{text-align:center;padding:10px;gap:10px;display:flex;justify-content:center;}
+.mode-btn{padding:7px 15px;border:none;border-radius:6px;background:#2563eb;color:#fff;cursor:pointer;}
+
+.login-wrap{background:#fff;margin:30px 15px;padding:30px;border-radius:15px;box-shadow:0 2px 10px #eee;}
+.login-title{text-align:center;font-size:20px;font-weight:bold;margin-bottom:25px;color:#2563eb;}
+.login-item{margin:18px 0;}
+.login-item input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px;}
+.login-sub{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer;}
+
+.main-top{background:#2563eb;color:#fff;padding:15px;border-radius:12px;margin:10px;display:flex;align-items:center;justify-content:space-between;}
+.user-head{display:flex;align-items:center;gap:12px;}
+.user-avatar{width:42px;height:42px;border-radius:50%;background:#fff;color:#2563eb;text-align:center;line-height:42px;font-weight:bold;font-size:16px;}
+.level-tag{font-size:11px;padding:2px 6px;border-radius:4px;color:#fff;white-space:nowrap;}
+.level-new{background:#94a3b8;}
+.level-silver{background:#c0c0c0;}
+.level-food{background:#f59e0b;}
+.operate-btn{display:flex;gap:10px;}
+.add-pub{width:36px;height:36px;border-radius:50%;border:none;background:#fff;color:#2563eb;font-size:22px;cursor:pointer;}
+.person-center{border:none;background:#fff;color:#2563eb;padding:6px 10px;border-radius:6px;cursor:pointer;}
+
+.filter-bar{display:flex;gap:8px;padding:0 10px;margin:12px 0;}
+.filter-btn{flex:1;padding:8px;border:none;border-radius:6px;background:#fff;cursor:pointer;}
+.filter-active{background:#2563eb;color:#fff;}
+
+.eval-card{background:#fff;margin:10px;padding:15px;border-radius:12px;}
+.hide-card{display:none !important;}
+.card-user{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.card-ava{width:36px;height:36px;border-radius:50%;background:#2563eb;color:#fff;text-align:center;line-height:36px;font-weight:bold;}
+.card-level{font-size:11px;padding:2px 5px;border-radius:4px;color:#fff;}
+.report-num{background:#ef4444;color:#fff;font-size:12px;padding:2px 5px;border-radius:4px;}
+.pub-time{margin-left:auto;font-size:12px;color:#888;}
+.food-name{font-weight:bold;color:#2563eb;margin:6px 0;}
+.food-place{font-size:13px;color:#666;margin-bottom:8px;}
+.food-img{width:100%;border-radius:8px;margin:10px 0;min-height:150px;object-fit:cover;}
+.img-error{border:2px dashed #ef4444;display:flex;align-items:center;justify-content:center;padding:35px;color:#ef4444;font-size:14px;flex-direction:column;}
+.eval-text{font-size:14px;color:#333;line-height:1.6;}
+.btn-row{display:flex;gap:8px;margin-top:15px;}
+.btn-msg{flex:1;padding:7px;border:none;border-radius:6px;background:#e0edff;color:#2563eb;cursor:pointer;}
+.btn-report1{flex:1;padding:7px;border:none;border-radius:6px;background:#ef4444;color:#fff;cursor:pointer;}
+.btn-report2{flex:1;padding:7px;border:none;border-radius:6px;background:#f59e0b;color:#fff;cursor:pointer;}
+
+.voice-wrap{display:flex;align-items:center;gap:8px;margin:10px 0;}
+.voice-input{flex:1;}
+.voice-btn{padding:8px 12px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;white-space:nowrap;}
+.voice-btn:active{background:#15803d;}
+.voice-tip{font-size:12px;margin:4px 0 8px 0;min-height:18px;}
+.tip-success{color:#16a34a;}
+.tip-warn{color:#f59e0b;}
+.tip-error{color:#dc2626;}
+
+.comment-box{margin-top:15px;border-top:1px solid #eee;padding-top:12px;}
+.comment-title{font-size:14px;color:#2563eb;font-weight:bold;margin-bottom:8px;}
+.comment-item{background:#f7f8fa;padding:8px;border-radius:6px;margin-bottom:6px;font-size:13px;}
+.comment-name{color:#2563eb;font-weight:bold;}
+
+.pop-mask{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;z-index:999;}
+.pop-window{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:450px;background:#fff;border-radius:12px;padding:20px;display:none;z-index:1000;}
+.pop-close{text-align:right;font-size:24px;color:#666;cursor:pointer;}
+.center-title{text-align:center;font-size:18px;font-weight:bold;margin:15px 0;color:#2563eb;}
+.info-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee;font-size:15px;}
+.level-desc{margin-top:15px;padding:10px;background:#f8fafc;border-radius:6px;font-size:14px;color:#555;}
+
+.bottom-pop{position:fixed;bottom:0;left:0;width:100%;background:#fff;padding:20px;border-radius:15px 15px 0 0;display:none;z-index:1000;}
+.pop-input select,.pop-input textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;}
+.pop-submit{width:100%;padding:11px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-top:10px;font-size:15px;}
+
+.login-page{display:block;}
+.main-page{display:none;}
+</style>
+</head>
+<body class="phone-mode">
+<div class="mode-switch">
+    <button class="mode-btn" onclick="changePhone()">手机模式</button>
+    <button class="mode-btn" onclick="changePad()">平板模式</button>
+</div>
+
+<div class="login-page" id="loginPage">
+    <div class="login-wrap">
+        <div class="login-title">第一步 账号登录</div>
+        <div class="login-item">
+            <input type="text" id="accName" placeholder="输入你的用户名">
+        </div>
+        <div class="login-item">
+            <input type="password" id="accPwd" placeholder="自定义数字密码">
+        </div>
+        <button class="login-sub" onclick="userLogin()">确认登录进入平台</button>
+    </div>
+</div>
+
+<div class="main-page" id="mainPage">
+    <div class="main-top">
+        <div class="user-head">
+            <div class="user-avatar" id="topAvatar">U</div>
+            <span id="loginUserName">用户名</span>
+            <span class="level-tag level-new" id="topLevel">新手</span>
+        </div>
+        <div class="operate-btn">
+            <button class="person-center" onclick="openPersonCenter()">个人中心</button>
+            <button class="add-pub" onclick="openPublish()">+</button>
+        </div>
+    </div>
+    <div class="filter-bar">
+        <button class="filter-btn filter-active" onclick="selectFilter('all')">全部</button>
+        <button class="filter-btn" onclick="selectFilter('school')">学校</button>
+        <button class="filter-btn" onclick="selectFilter('restaurant')">餐厅</button>
+    </div>
+    <div id="evalListBox"></div>
+</div>
+
+<div class="pop-mask" id="centerMask"></div>
+<div class="pop-window" id="centerPop">
+    <div class="pop-close" onclick="closePersonCenter()">×</div>
+    <div class="center-title">个人资料中心</div>
+    <div class="info-item"><span>我的用户名</span><span id="centerName">-</span></div>
+    <div class="info-item"><span>已发布评价数</span><span id="pubCount">0 条</span></div>
+    <div class="info-item"><span>当前累计经验值</span><span id="userExp">0 点</span></div>
+    <div class="info-item"><span>当前用户等级</span><span id="userRank">新手</span></div>
+    <div class="level-desc">等级规则：新手0-50经验→白银51-150经验→美食家150经验以上</div>
+</div>
+
+<div class="pop-mask" id="pubMask"></div>
+<div class="bottom-pop" id="pubPop">
+    <div class="pop-close" onclick="closePublish()">×</div>
+    <div class="voice-wrap">
+        <input class="voice-input" type="text" id="pubFood" placeholder="填写评价菜品名称">
+        <button class="voice-btn" onclick="startSpeech('pubFood')">🎤语音输入</button>
+    </div>
+    <div class="voice-tip" id="tip_pubFood"></div>
+
+    <div class="pop-input">
+        <select id="pubPlace">
+            <option value="">请选择就餐地址</option>
+            <option value="校外餐厅">校外餐厅</option>
+            <option value="学校食堂">学校食堂</option>
+            <option value="学生食堂">学生食堂</option>
+            <option value="教师食堂">教师食堂</option>
+        </select>
+    </div>
+
+    <div class="voice-wrap">
+        <input class="voice-input" type="text" id="pubImgUrl" placeholder="粘贴菜品图片链接">
+        <button class="voice-btn" onclick="startSpeech('pubImgUrl')">🎤语音输入</button>
+    </div>
+    <div class="voice-tip" id="tip_pubImgUrl"></div>
+
+    <div class="voice-wrap">
+        <textarea class="voice-input" id="pubContent" rows="3" placeholder="写下美食评价"></textarea>
+        <button class="voice-btn" onclick="startSpeech('pubContent')">🎤语音输入</button>
+    </div>
+    <div class="voice-tip" id="tip_pubContent"></div>
+    <button class="pop-submit" onclick="submitPublish()">提交发布评价</button>
+</div>
+
+<div class="pop-mask" id="msgMask"></div>
+<div class="bottom-pop" id="msgPop">
+    <div class="pop-close" onclick="closeMsg()">×</div>
+    <div class="voice-wrap">
+        <input class="voice-input" type="text" id="msgNickname" placeholder="输入你的昵称">
+        <button class="voice-btn" onclick="startSpeech('msgNickname')">🎤语音输入</button>
+    </div>
+    <div class="voice-tip" id="tip_msgNickname"></div>
+
+    <div class="voice-wrap">
+        <textarea class="voice-input" id="msgText" rows="3" placeholder="写下看法留言"></textarea>
+        <button class="voice-btn" onclick="startSpeech('msgText')">🎤语音输入</button>
+    </div>
+    <div class="voice-tip" id="tip_msgText"></div>
+    <button class="pop-submit" onclick="sendUserMsg()">发送留言点评</button>
+</div>
+
+<script>
+let loginName = "";
+let userPassword = "";
+let userPublishNum = parseInt(localStorage.getItem("foodPubNum")) || 0;
+let userExperience = parseInt(localStorage.getItem("foodExp")) || 0;
+let nowFilterType = "all";
+let targetEvalId = 0;
+const shieldLimit = 3;
+let targetInputId = "";
+let speechRec = null;
+
+(function initSpeech(){
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(window.SpeechRecognition){
+        speechRec = new SpeechRecognition();
+        speechRec.lang = "zh-CN";
+        speechRec.continuous = false;
+        speechRec.interimResults = false;
+
+        speechRec.onresult = function(e){
+            let text = e.results[0][0].transcript.trim();
+            if(targetInputId){
+                document.getElementById(targetInputId).value = text;
+                setTip(targetInputId,"✅语音识别完成",true);
+            }
+        };
+        speechRec.onerror = function(){
+            setTip(targetInputId,"⚠️收音失败，请对准麦克风清晰说话",false);
+        };
+        speechRec.onend = function(){ targetInputId = ""; };
+    }
+})();
+
+function setTip(id,text,isSuccess){
+    let tipDom = document.getElementById("tip_"+id);
+    tipDom.innerText = text;
+    tipDom.className = isSuccess ? "voice-tip tip-success" : "voice-tip tip-warn";
+}
+
+function startSpeech(inputId){
+    if(!speechRec){
+        alert("当前浏览器不支持语音功能，建议使用Chrome、Edge浏览器访问网站");
+        return;
+    }
+    targetInputId = inputId;
+    setTip(inputId,"🎙正在收音，请说话...",false);
+    speechRec.stop();
+    setTimeout(()=>speechRec.start(),150);
+}
+
+let evalDataList = JSON.parse(localStorage.getItem("foodEvalData")) || [
+    {id:1,userName:"张明",foodName:"早餐炸油条",place:"学生食堂",
+    img:"https://img0.baidu.com/it/u=3226113113,2616623239&fm=253&fmt=auto",
+    content:"口感酥脆香浓，搭配豆浆食用味道极佳，日常早餐首选",
+    pubTime:"2026-05-17 07:22",reportTimes:0,sourceType:"school",userLevel:"新手",
+    commentList:[{name:"小雨",text:"口感香脆，性价比很高"},{name:"浩浩",text:"早餐吃这个很饱腹"}]},
+    {id:2,userName:"李芳",foodName:"暖心麻辣烫",place:"校外餐厅",
+    img:"https://img0.baidu.com/it/u=1766733219,3711622138&fm=253&fmt=auto",
+    content:"食材新鲜丰富，汤底醇厚鲜香，暖胃又好吃",
+    pubTime:"2026-05-17 12:15",reportTimes:0,sourceType:"restaurant",userLevel:"白银",
+    commentList:[{name:"彤彤",text:"分量充足，就餐体验不错"}]}
+];
+
+function saveAllData(){
+    localStorage.setItem("foodPubNum",userPublishNum);
+    localStorage.setItem("foodExp",userExperience);
+    localStorage.setItem("foodEvalData",JSON.stringify(evalDataList));
+}
+function changePhone(){document.body.className="phone-mode";}
+function changePad(){document.body.className="pad-mode";}
+
+function userLogin(){
+    let name = document.getElementById("accName").value.trim();
+    let pwd = document.getElementById("accPwd").value.trim();
+    if(!name||!pwd||isNaN(pwd)){alert("请填写合法用户名与数字密码");return;}
+    loginName = name;
+    userPassword = pwd;
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+    document.getElementById("loginUserName").innerText = loginName;
+    document.getElementById("topAvatar").innerText = loginName.charAt(0).toUpperCase();
+    refreshUserLevel();
+    renderEvalList();
+}
+
+function refreshUserLevel(){
+    let text = "新手", cls = "level-new";
+    if(userExperience>=51&&userExperience<=150){text="白银";cls="level-silver";}
+    else if(userExperience>150){text="美食家";cls="level-food";}
+    document.getElementById("topLevel").innerText = text;
+    document.getElementById("topLevel").className = "level-tag "+cls;
+}
+
+function openPersonCenter(){
+    document.getElementById("centerMask").style.display="block";
+    document.getElementById("centerPop").style.display="block";
+    document.getElementById("centerName").innerText=loginName;
+    document.getElementById("pubCount").innerText=userPublishNum+" 条";
+    document.getElementById("userExp").innerText=userExperience+" 点";
+    let rank="新手";
+    if(userExperience>=51&&userExperience<=150)rank="白银美食达人";
+    if(userExperience>150)rank="资深美食家";
+    document.getElementById("userRank").innerText=rank;
+}
+function closePersonCenter(){
+    document.getElementById("centerMask").style.display="none";
+    document.getElementById("centerPop").style.display="none";
+}
+
+function selectFilter(type){
+    nowFilterType = type;
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("filter-active"));
+    event.target.classList.add("filter-active");
+    renderEvalList();
+}
+
+function renderEvalList(){
+    let html = "";
+    evalDataList.forEach(item=>{
+        if(nowFilterType!=="all"&&item.sourceType!==nowFilterType)return;
+        let hide = item.reportTimes>=shieldLimit?"hide-card":"";
+        let headChar = item.userName.charAt(0);
+        let levelClass = item.userLevel==="白银"?"level-silver":item.userLevel==="美食家"?"level-food":"level-new";
+        let commentHtml = "";
+        item.commentList.forEach(c=>{
+            commentHtml += `<div class="comment-item"><span class="comment-name">${c.name}：</span>${c.text}</div>`;
+        });
+        html += `
+        <div class="eval-card ${hide}">
+            <div class="card-user">
+                <div class="card-ava">${headChar}</div>
+                <span>${item.userName}</span>
+                <span class="card-level ${levelClass}">${item.userLevel}</span>
+                <span class="report-num">已被举报${item.reportTimes}次</span>
+                <span class="pub-time">${item.pubTime}</span>
+            </div>
+            <div class="food-name">菜品：${item.foodName}</div>
+            <div class="food-place">就餐地点：${item.place}</div>
+            <img class="food-img" src="${item.img}" onerror="this.className='img-error';this.innerText='图片加载失败'">
+            <div class="eval-text">${item.content}</div>
+            <div class="btn-row">
+                <button class="btn-msg" onclick="openMsgBox(${item.id})">留言点评</button>
+                <button class="btn-report1" onclick="singleReport(${item.id})">个人举报</button>
+                <button class="btn-report2" onclick="schoolReport(${item.id})">全校联合举报</button>
+            </div>
+            <div class="comment-box">
+                <div class="comment-title">大家的评价留言</div>
+                ${commentHtml}
+            </div>
+        </div>`;
+    });
+    document.getElementById("evalListBox").innerHTML = html;
+}
+
+function openPublish(){document.getElementById("pubMask").style.display="block";document.getElementById("pubPop").style.display="block";}
+function closePublish(){document.getElementById("pubMask").style.display="none";document.getElementById("pubPop").style.display="none";}
+function submitPublish(){
+    let food = document.getElementById("pubFood").value.trim();
+    let place = document.getElementById("pubPlace").value;
+    let imgUrl = document.getElementById("pubImgUrl").value.trim();
+    let content = document.getElementById("pubContent").value.trim();
+    if(!food||!place||!content){alert("菜品名称、就餐地址、评价内容不能为空");return;}
+    userPublishNum++;
+    userExperience += 20;
+    refreshUserLevel();
+    let now = new Date();
+    let timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")} ${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+    evalDataList.push({
+        id:evalDataList.length+1,userName:loginName,foodName:food,place:place,img:imgUrl,
+        content:content,pubTime:timeStr,reportTimes:0,
+        sourceType:place==="校外餐厅"?"restaurant":"school",userLevel:"新手",commentList:[]
+    });
+    saveAllData();
+    closePublish();
+    alert("发布成功，获得20点经验值");
+    renderEvalList();
+}
+
+function openMsgBox(id){targetEvalId=id;document.getElementById("msgMask").style.display="block";document.getElementById("msgPop").style.display="block";}
+function closeMsg(){document.getElementById("msgMask").style.display="none";document.getElementById("msgPop").style.display="none";}
+function sendUserMsg(){
+    let nick = document.getElementById("msgNickname").value.trim();
+    let msgTxt = document.getElementById("msgText").value.trim();
+    if(!nick||!msgTxt){alert("昵称和留言内容不能为空");return;}
+    evalDataList.forEach(item=>{
+        if(item.id === targetEvalId) item.commentList.push({name:nick,text:msgTxt});
+    });
+    saveAllData();
+    closeMsg();
+    alert("留言发送成功");
+    renderEvalList();
+}
+
+function singleReport(id){
+    evalDataList.forEach(item=>{
+        if(item.id===id){
+            item.reportTimes++;
+            let tip = item.reportTimes>=shieldLimit?"该评价已自动隐藏":"举报成功，累计"+item.reportTimes+"次";
+            alert(tip);
+        }
+    });
+    saveAllData();renderEvalList();
+}
+function schoolReport(id){
+    evalDataList.forEach(item=>{if(item.id===id)item.reportTimes+=3;});
+    saveAllData();alert("批量举报已生效");renderEvalList();
+}
+</script>
+</body>
+</html>
